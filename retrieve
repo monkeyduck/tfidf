@@ -1,0 +1,35 @@
+# coding: utf-8
+
+import codecs
+
+prquota= u'“'
+poquota= u'”'
+comma  = u'，'
+period = u'。'
+prsquot= u'‘'
+posquot= u'’'
+exclam = u'！'
+quest  = u'？'
+colon  = u'：'
+semicol= u'；'
+dash=u'——'
+symbol_list = ['\xa1\xa3','\xa3\xac','\xa1\xb0','\xa1\xb1','\xa3\xba','\xa3\xbf','\xa3\xa1','\xa1\xad','xa3\xbb','\xa1\xae','\xa1\xaf']
+symbol_list = [prquota,poquota,comma,period,prsquot,posquot,exclam,quest,colon,semicol,dash]
+
+with codecs.open('game1utf8.txt','r','utf-8') as f:
+	for line in f.readlines(1000):
+		if poquota in line:
+			flag = 0
+			split_list = line.split(poquota)
+			for split_ele in split_list:
+				if split_ele[-1] in symbol_list:
+					flag=1
+					break
+			if flag==1:
+				line = line[4:]
+				for word in line:
+					print word
+					if word==prquota:
+						pass
+						
+				
