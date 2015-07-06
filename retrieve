@@ -1,0 +1,63 @@
+# coding: utf-8
+
+import codecs
+import jieba
+
+prquota= u'“'
+poquota= u'”'
+comma  = u'，'
+period = u'。'
+prsquot= u'‘'
+posquot= u'’'
+exclam = u'！'
+quest  = u'？'
+colon  = u'：'
+semicol= u'；'
+pause = u'、'
+dash=u'—'
+apost = u'…'
+#symbol_list = ['\xa1\xa3','\xa3\xac','\xa1\xb0','\xa1\xb1','\xa3\xba','\xa3\xbf','\xa3\xa1','\xa1\xad','xa3\xbb','\xa1\xae','\xa1\xaf']
+symbol_list = [prquota,poquota,comma,period,prsquot,posquot,exclam,quest,colon,semicol,pause,dash,apost]
+specialnum = [u'\u2460',u'\u2461',u'\u2462',u'\u2463',u'\u2464',u'\u2465',u'\u2466',u'\u2467',u'\u2468',u'\u2469']
+
+wfile = open('dialog_split.llc','w')
+with codecs.open('game1utf8.txt','r','utf-8') as f:
+	linecount = 1
+	for line in f.readlines(1000):
+		if poquota in line:			#check if post quotation exists
+			flag = 0
+			split_list = line.split(poquota)
+			for split_ele in split_list:
+				if split_ele[-1] in symbol_list:		#check if line is a dialog
+					flag=1
+					break
+			if flag==1:
+				line = line[2:]		#delete the space
+				stack = []
+				i=0
+				while i<len(line)-2:			#take '\r\n' into account
+					word = line[i]
+					i+=1
+					if word==prquota:
+						stack.append(prquota)
+						wline=u''
+						while len(stack)!=0:
+							if i>=len(line):
+								print line
+							word = line[i]
+							i += 1
+							if word == prquota:
+								stack.append(word)
+							elif word == poquota:
+								stack.pop()
+							wline += word
+						segs = jieba.cut(wline)
+						nline=u''
+						for seg in segs:
+							if seg not in symbol_list:
+								if seg not in specialnum:
+									nline += (seg+u' ')
+						wfile.write(str(linecount)+u':'+nline+u'\r\n')		#delete the post quotation and its previous mark
+						linecount += 1
+f.close()
+wfile.close()				

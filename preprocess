@@ -1,0 +1,68 @@
+import pdb
+
+f1=open("game1.txt")
+f2=open("dialogFive1.txt",'w')
+
+symbol_list = ['\xa1\xa3','\xa3\xac','\xa1\xb0','\xa1\xb1','\xa3\xba','\xa3\xbf','\xa3\xa1','\xa1\xad','xa3\xbb','\xa1\xae','\xa1\xaf']
+#[。/，/“/”/：/？/！/……/；/'/']
+count1 = 0
+count2 = 0
+for line in f1.readlines():
+    #pdb.set_trace()
+    count1 += 1
+    #print ("executing the %d sentence",count1)
+    if '\xa1\xb1' in line:
+        flag = 0
+        split_list = line.split('\xa1\xb1')
+        for split_ele in split_list:
+            if split_ele[-2:] in symbol_list:
+                flag=1
+                break
+        if flag==1:
+            #pdb.set_trace()
+            count2 += 1
+            #print ("parsing the %d sentence",count2)
+            line = line[4:]
+            i=0
+            enddex=0
+            while i<len(line)-1:
+                if '\xa1\xb0' not in line[enddex:]:
+                    break
+                ch=line[i:i+2]
+                if ch=='\xa1\xb0':  #“
+                    #pdb.set_trace()
+                    dex=line.find('\xa1\xb1',i)
+                    txtline=line[i:dex+2]
+                    leftline=line[dex+2:]
+                    if txtline[-4:-2]=='\xa1\xa3':  #。
+                        if len(leftline)>2 and '\xa1\xa3' in leftline:
+                            txtline += leftline[0:leftline.find('\xa1\xa3')+2]
+                        #print txtline
+                    elif txtline[-4:-2]=='\xa3\xbf' or txtline[-4:-2]=='\xa3\xa1':    #? or !
+                        if '\xa1\xb0' in leftline:  #" exists in leftline
+                            txtline += leftline[0:leftline.find('\xa1\xb1')+2]
+                        elif len(leftline)<=2:
+                            pass    #leftline is null, do nothing.
+                        else:   #not exists
+                            txtline += leftline[0:leftline.find('\xa1\xa3')+2]
+                        #print txtline
+                    else:       #,
+                        if len(leftline)>2:
+                            txtline += leftline[0:leftline.find('\xa1\xb1')+2]
+                        #print txtline
+                    i = i+len(txtline)
+                    enddex=i
+                    f2.write(txtline+'\n')
+                elif ch=='\xa3\xba' and line[i+2:i+4]=='\xa1\xb0':  #check :"
+                    dex=line.find('\xa1\xb1',i)    
+                    txtline=line[enddex:dex+2]
+                    leftline=line[dex+2:]
+                    i = i+len(txtline)
+                    enddex=i
+                    f2.write(txtline+'\n')
+                else:
+                    i = i+2
+f2.close()
+print("completed!")
+        
+            
